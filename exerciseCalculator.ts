@@ -1,3 +1,4 @@
+import { isNumber } from "./utils";
 interface Result {
   periodLength: number;
   trainingDays: number;
@@ -15,7 +16,7 @@ interface trainingValues {
 
 const parseExerciseValues = (args: string[]): trainingValues => {
   if (args.length < 4) throw new Error("Not enough arguments!");
-  if (args.slice(2).every((e) => !isNaN(Number(e)))) {
+  if (args.slice(2).every((e) => isNumber(e))) {
     return {
       exercisePeriod: args.slice(3, args.length).map(Number),
       target: Number(args[2]),
@@ -32,15 +33,27 @@ const calculateExercises = (
   const hoursSum = exercisePeriod.reduce((sum, currentValue) => {
     return (sum += currentValue);
   }, 0);
-  const avgValue = hoursSum / exercisePeriod.length;
+  const avgHourValue = hoursSum / exercisePeriod.length;
+
+  let rating: number;
+
+  if (avgHourValue >= target) {
+    rating = 3;
+  } else if (target - avgHourValue < 1) {
+    rating = 2;
+  } else {
+    rating = 1;
+  }
+
   return {
     periodLength: exercisePeriod.length,
     trainingDays: exercisePeriod.filter((e) => e !== 0).length,
-    success: avgValue >= target,
-    rating: 2,
-    ratingDescription: "not bad",
+    success: avgHourValue >= target,
+    rating: rating,
+    ratingDescription:
+      rating === 3 ? "excellent" : rating === 2 ? "not bad" : "bad",
     target: target,
-    average: avgValue,
+    average: avgHourValue,
   };
 };
 
