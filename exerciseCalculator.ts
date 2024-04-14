@@ -1,5 +1,5 @@
 import { isNumber } from "./utils";
-interface Result {
+export interface Result {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -26,7 +26,7 @@ const parseExerciseValues = (args: string[]): trainingValues => {
   }
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   exercisePeriod: number[],
   target: number
 ): Result => {
