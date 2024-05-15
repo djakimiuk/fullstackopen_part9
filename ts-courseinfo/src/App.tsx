@@ -6,13 +6,20 @@ interface ContentProps {
   courseParts: CoursePart[];
 }
 
+interface PartProps {
+  coursePart: CoursePart;
+}
+
 interface CoursePartBase {
   name: string;
   exerciseCount: number;
 }
 
-interface CoursePartBasic extends CoursePartBase {
+interface CoursePartDescription extends CoursePartBase {
   description: string;
+}
+
+interface CoursePartBasic extends CoursePartDescription {
   kind: "basic";
 }
 
@@ -21,13 +28,21 @@ interface CoursePartGroup extends CoursePartBase {
   kind: "group";
 }
 
-interface CoursePartBackground extends CoursePartBase {
-  description: string;
+interface CoursePartBackground extends CoursePartDescription {
   backgroundMaterial: string;
   kind: "background";
 }
 
-type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+interface CoursePartRequirements extends CoursePartDescription {
+  requirements: string[];
+  kind: "special";
+}
+
+type CoursePart =
+  | CoursePartBasic
+  | CoursePartGroup
+  | CoursePartBackground
+  | CoursePartRequirements;
 
 interface TotalProps {
   totalExercises: number;
@@ -41,12 +56,60 @@ const Content = (props: ContentProps) => {
   return (
     <>
       {courseParts.map((part, index) => (
-        <p key={index}>
-          {part.name} {part.exerciseCount}
-        </p>
+        <Part key={index} coursePart={part} />
       ))}
     </>
   );
+};
+
+const Part = (props: PartProps) => {
+  const { coursePart } = props;
+  switch (coursePart.kind) {
+    case "basic":
+      return (
+        <p>
+          <b>
+            {coursePart.name} {coursePart.exerciseCount}
+          </b>
+          <br></br>
+          <i>{coursePart.description}</i>
+        </p>
+      );
+    case "group":
+      return (
+        <p>
+          <b>
+            {coursePart.name} {coursePart.exerciseCount}
+          </b>
+          <br></br>
+          project exercises {coursePart.groupProjectCount}
+        </p>
+      );
+    case "background":
+      return (
+        <p>
+          <b>
+            {coursePart.name} {coursePart.exerciseCount}
+          </b>
+          <br></br>
+          <i>{coursePart.description}</i>
+          <br></br>
+          submit to {coursePart.backgroundMaterial}
+        </p>
+      );
+    case "special":
+      return (
+        <p>
+          <b>
+            {coursePart.name} {coursePart.exerciseCount}
+          </b>
+          <br></br>
+          <i>{coursePart.description}</i>
+          <br></br>
+          required skills: {coursePart.requirements.join(", ")}
+        </p>
+      );
+  }
 };
 
 const Total = (props: TotalProps) => {
@@ -87,6 +150,13 @@ const App = () => {
       exerciseCount: 10,
       description: "a hard part",
       kind: "basic",
+    },
+    {
+      name: "Backend development",
+      exerciseCount: 21,
+      description: "Typing the backend",
+      requirements: ["nodejs", "jest"],
+      kind: "special",
     },
   ];
 
